@@ -15,13 +15,14 @@ router.get('/customer', auth , (req,res)=>{
 })
 
 router.post('/customer', async (req,res)=>{
+    console.log(req.body);
     const customer = new Customer(req.body)
     
     try{
         await customer.save();
-        console.log(customer);
         const token = await customer.generateAuthToken()
-        res.status(201).send({customer, token})
+        console.log(customer);
+        res.status(201).send({customer,token})
     }catch(err){
         res.status(400).send(err)
     }
@@ -31,15 +32,24 @@ router.post('/customer', async (req,res)=>{
 
 router.post('/customer/login', async (req, res)=>{
     try{
+
     const customer = await Customer.authenticateByCredential(req.body.email, req.body.password)
-    const token = await customer.generateAuthToken();
+
+    if(!(typeof customer=="object")){
+       return res.status(200).send('Invalid Credentials')
+    }
+
+    const token = await customer.generateAuthToken()
+    
     if(!token){
-        res.status(200).send('Invalid Credentials')
+        res.status(404).send("Invalid Credentials")
     }
-    res.status(200).send({customer, token})
+
+    res.render('index', {name:customer.name,email:customer.email} )
     }catch(e){
-        console.log("Getting This Error " +e)
+        res.send(e);
     }
+
    
 } )
 

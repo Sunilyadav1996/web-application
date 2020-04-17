@@ -1,7 +1,7 @@
 //Import Section
 const path = require('path')
 const express = require('express')
-const hbs = require('hbs')
+//const hbs = require('hbs')
 const app = express()
 require('../db/mongodb')
 const customerRouter = require('../routes/customerRoutes')
@@ -15,23 +15,16 @@ const partialsPath = path.join(__dirname, '../templates/partials')
 // Setup handlebars engine and views location
 app.set('view engine', 'hbs')
 app.set('views', viewsPath)
-hbs.registerPartials(partialsPath)
+//hbs.registerPartials(partialsPath)
 
 // Setup static directory to serve
 app.use(express.static(publicDirectoryPath))
 
-
+app.use(express.urlencoded());
 app.use(express.json()) // for parsing application/json
 app.use(customerRouter)
 
-app.get('*', (req, res) => {
-    res.render('404', {
-        title: '404',
-        name: 'Andrew Mead',
-        errorMessage: 'Page not found.'
-    })
-})
-
+console.log(__dirname);
 app.listen(port,()=>
 {
     console.log('Hello Node Server. You are running' )

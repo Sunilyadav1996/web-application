@@ -31,6 +31,7 @@ const customerSchema = new mongoose.Schema({
 
 customerSchema.pre('save', async function(next){
     const cust = this;
+    console.log(cust.password);
     const hashPassword= await bcrypt.hash(cust.password,8)
     this.password=hashPassword;
     next();
@@ -40,20 +41,19 @@ customerSchema.methods.generateAuthToken = async function(){
     const customer = this
     const token =  jwt.sign({ _id: customer._id.toString() }, 'thisismynewcourse')
     customer.tokens = customer.tokens.concat({ token }) 
+    await customer.save()
     return token
 }
 
 customerSchema.statics.authenticateByCredential = async function(email, password){
     const customer = await Customer.findOne({email})
-   
     if(!customer){
     return new Error('Invalid Credential')
     }
-
-    const isMatch = await bcrypt.compare(password,customer.password)
     
+    const isMatch = bcrypt.compare(password,customer.password)
     if(!isMatch){
-        return 'Invalid Credential'
+        return 'Invalid Credential-'
     }
 
     return customer
